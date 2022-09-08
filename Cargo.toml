@@ -6,6 +6,18 @@ license = "MIT"
 edition = "2021"
 
 [dependencies]
+# Utilities
+anyhow = "1.0"
+dotenv = "0.15.0"
+futures = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Logging
 log = "0.4"
 log4rs = "1.1.1"
-tokio = { version = "1", features = ["full"] }
+
+# Discord API
+twilight-cache-inmemory = "0.13.0"
+twilight-gateway = "0.13.0"
+twilight-http = "0.13.0"
+twilight-model = "0.13.2"
