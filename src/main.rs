@@ -13,11 +13,8 @@ use twilight_http::Client as HttpClient;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Load the environment variables from the `.env` file.
-    dotenv::dotenv().ok();
-
     // Initialize the logger.
-    let _handle = init_logger();
+    let _handle = init_logger()?;
 
     let token = env::var("DISCORD_TOKEN")?;
     let intents = Intents::AUTO_MODERATION_EXECUTION
@@ -47,7 +44,7 @@ async fn main() -> Result<()> {
 /// Initializes the logger.
 ///
 /// Returns a handle to the logger.
-fn init_logger() -> Handle {
+fn init_logger() -> Result<Handle> {
     let encoder = PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)}] [{T}/{h({l})}] [{M}]: {m}{n}");
     let console_appender = ConsoleAppender::builder()
         .target(Target::Stdout)
@@ -62,7 +59,8 @@ fn init_logger() -> Handle {
         .build(log_root)
         .unwrap();
 
-    log4rs::init_config(log_config).unwrap()
+    let handle = log4rs::init_config(log_config)?;
+    Ok(handle)
 }
 
 /// Initializes the gateway cluster.
