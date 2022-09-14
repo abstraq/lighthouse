@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::{Ok, Result};
-use lighthouse::CommandExecutor;
 use twilight_http::Client;
 use twilight_model::application::interaction::{application_command::CommandData, Interaction};
 
@@ -15,7 +14,7 @@ pub async fn handle_command(
     api: Arc<Client>,
 ) -> Result<()> {
     match &*data.name {
-        "debug" => DebugCommand.execute(interaction, data, api).await,
+        "debug" => DebugCommand::execute(interaction, data, api).await,
         _ => Ok(()),
     }
 }

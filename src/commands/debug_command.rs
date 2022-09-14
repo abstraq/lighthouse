@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use async_trait::async_trait;
-use lighthouse::CommandExecutor;
 use twilight_http::Client;
 use twilight_model::application::interaction::application_command::CommandData;
 use twilight_model::application::interaction::Interaction;
@@ -13,16 +11,12 @@ use twilight_util::builder::{embed::EmbedBuilder, InteractionResponseDataBuilder
 pub struct DebugCommand;
 
 /// Debug command that shows information about the bot.
-#[async_trait]
-impl CommandExecutor for DebugCommand {
-    async fn execute(
-        &self,
+impl DebugCommand {
+    pub async fn execute(
         interaction: Interaction,
         _: Box<CommandData>,
         discord_api: Arc<Client>,
     ) -> Result<()> {
-        let interaction_id = interaction.id;
-        let interaction_token = interaction.token.as_str();
         let interaction_client = discord_api.interaction(interaction.application_id);
 
         let hardware_info_text = create_info_code_block()?;
@@ -45,7 +39,7 @@ impl CommandExecutor for DebugCommand {
         };
 
         interaction_client
-            .create_response(interaction_id, interaction_token, &response)
+            .create_response(interaction.id, &*interaction.token, &response)
             .exec()
             .await?;
 

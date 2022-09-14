@@ -9,7 +9,6 @@ edition = "2021"
 [dependencies]
 # Utilities
 anyhow = "1.0"
-async-trait = "0.1.57"
 chrono = "0.4.22"
 futures = "0.3"
 indoc = "1.0"
