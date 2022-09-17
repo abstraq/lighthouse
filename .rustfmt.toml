@@ -1,0 +1,9 @@
+unstable_features = true
+
+# A Java brain's idea of what rust should look like.
+hard_tabs = true
+fn_args_layout = "Compressed"
+group_imports = "StdExternalCrate"
+imports_granularity = "Module"
+imports_layout = "Horizontal"
+max_width = 150

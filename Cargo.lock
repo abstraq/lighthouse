@@ -583,6 +583,7 @@ dependencies = [
  "log4rs",
  "os_info",
  "procfs",
+ "thiserror",
  "tokio",
  "twilight-gateway",
  "twilight-http",
