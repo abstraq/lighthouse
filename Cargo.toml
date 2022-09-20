@@ -9,7 +9,11 @@ edition = "2021"
 [dependencies]
 # Utilities
 anyhow = "1.0"
+chrono = "0.4.22"
 futures = "0.3"
+indoc = "1.0"
+sysinfo = "0.26.2"
+thiserror = "1.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 # Logging
@@ -17,7 +21,7 @@ log = "0.4"
 log4rs = "1.1.1"
 
 # Discord API
-twilight-cache-inmemory = "0.13.0"
 twilight-gateway = "0.13.0"
 twilight-http = "0.13.0"
 twilight-model = "0.13.2"
+twilight-util = { version = "0.13.1", features = ["full"] }
