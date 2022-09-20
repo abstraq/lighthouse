@@ -12,8 +12,7 @@ anyhow = "1.0"
 chrono = "0.4.22"
 futures = "0.3"
 indoc = "1.0"
-os_info = { version = "3.5.0", default-features = false }
-procfs = "0.14.1"
+sysinfo = "0.26.2"
 thiserror = "1.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 

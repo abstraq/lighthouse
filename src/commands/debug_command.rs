@@ -1,7 +1,9 @@
+use std::process;
 use std::sync::Arc;
 
 use anyhow::Result;
 use lighthouse::PermissionsError;
+use sysinfo::{CpuExt, Pid, PidExt, ProcessExt, System, SystemExt};
 use twilight_http::Client;
 use twilight_model::application::interaction::application_command::CommandData;
 use twilight_model::application::interaction::Interaction;
@@ -18,6 +20,8 @@ use super::unimplemented_subcommand_response;
 const ADMINISTRATOR_ID: Id<UserMarker> = Id::new(671477574932627516);
 
 /// Debug command that shows information about the bot.
+///
+/// This command can only be run by the bot owner indicated by the `ADMINISTRATOR_ID` constant.
 pub fn handle_debug_command(interaction: &Interaction, data: &CommandData, _: &Arc<Client>) -> Result<InteractionResponse> {
 	// The debug command should only be allowed to run by the bot owner.
 	if interaction.author_id() == Some(ADMINISTRATOR_ID) {
@@ -31,10 +35,11 @@ pub fn handle_debug_command(interaction: &Interaction, data: &CommandData, _: &A
 		};
 		Ok(response)
 	} else {
-		Err(anyhow::anyhow!("Rawr"))
+		Err(anyhow::anyhow!(PermissionsError::Restricted))
 	}
 }
 
+/// An `InteractionResponse` that shows information about the bot.
 fn debug_info_response() -> Result<InteractionResponse> {
 	let embed = EmbedBuilder::new()
 		.title("Lighthouse Debug Information")
@@ -57,25 +62,27 @@ fn debug_info_response() -> Result<InteractionResponse> {
 }
 
 fn create_info_code_block() -> Result<String> {
-	let cpu_info = procfs::CpuInfo::new()?;
-	let cpu_model = cpu_info.model_name(0).unwrap_or("Unknown");
-	let cpu_cores = cpu_info.num_cores();
+	let system = System::new_all();
+	let os_info = system.long_os_version().unwrap_or_else(|| "Unknown".to_owned());
+	let cpu_model = system.global_cpu_info().brand().to_owned();
+	let cpu_cores = system
+		.physical_core_count()
+		.map(|count| count.to_string())
+		.unwrap_or_else(|| "Unknown".to_owned());
 
-	let os_info = os_info::get();
-	let lighthouse_process = procfs::process::Process::myself()?;
-	let lighthouse_process_statm = lighthouse_process.statm()?;
-	// TODO: Calculate page size at runtime or use a crate for getting process memory usage.
-	let used_memory_in_mb = (lighthouse_process_statm.resident * 4) / 1000;
+	// We can unwrap here because it is guaranteed that the process ID is valid.
+	let current_process = system.process(Pid::from_u32(process::id())).unwrap();
 
+	let memory_usage_in_mb = current_process.memory() / 1000000;
 	let formatted_text = indoc::formatdoc! {
 		"```ansi
-        \u{001b}[0;33mSystem Information
-        \u{001b}[0;32mOS: \u{001b}[0m{os_info}
-        \u{001b}[0;32mCPU Model: \u{001b}[0m{cpu_model}
-        \u{001b}[0;32mTotal CPU Cores: \u{001b}[0m{cpu_cores}
+        \u{001b}[0;42mSystem Information                   \u{001b}[0m
+        \u{001b}[0;37mOS: \u{001b}[0m{os_info}
+        \u{001b}[0;37mCPU Model: \u{001b}[0m{cpu_model}
+        \u{001b}[0;37mTotal CPU Cores: \u{001b}[0m{cpu_cores}
 
-        \u{001b}[0;33mProcess Stats
-        \u{001b}[0;32mMemory Usage: \u{001b}[0m{used_memory_in_mb}MB
+        \u{001b}[0;42mProcess Stats                        \u{001b}[0m
+        \u{001b}[0;37mMemory Usage: \u{001b}[0m{memory_usage_in_mb}MB
         ```",
 	};
 	Ok(formatted_text)
